@@ -32,15 +32,25 @@ func main() {
 	if db_err != nil {
 		log.Println(db_err)
 	}
+	_, mutation_err:= database.Mutate(db, "update test set age=30;")
 
-	res, query_err := database.QueryAll[Test](db, "test")
+	if mutation_err != nil {
+		log.Println(mutation_err)
+	}
+
+	res, query_err := database.Query(db, "select * from test;")
 	
 	if query_err != nil {
 		log.Println(query_err)
 	}
 
-	for _,val := range res {
-		log.Println(val)
+	test := Test{}
+
+	for res.Next(){
+		if err := res.Scan(&test.Email, &test.Id, &test.Name, &test.Age); err != nil {
+			log.Fatal(err)
+		}
+		log.Println(test)
 	}
 
 }
