@@ -21,5 +21,9 @@ func CreateTable(conn *sql.DB, name string,columns map[string][]string) (sql.Res
 
 	res, err := conn.Exec(query)
 
-	return res, err
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }

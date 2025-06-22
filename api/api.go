@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"log"
 	"net"
@@ -45,7 +46,7 @@ func createRequest(url string, method string, body interface{}, options Options)
 	return req
 }
 
-func makeRequest[T any](url string, method string, body interface{}, options Options) *T {
+func makeRequest[T any](url string, method string, body interface{}, options Options) (*T, error) {
 	var client *http.Client
 
 	if options.Socket != "" {
@@ -77,13 +78,16 @@ func makeRequest[T any](url string, method string, body interface{}, options Opt
 		log.Println(string(responseDump))
 	}
 
-	if err != nil || res.StatusCode >= 400 {
-		log.Println("Request failed or Status code >= 400")
+	if err != nil{
+		return nil, err
+	} 
+
+	if res.StatusCode >= 400 {
 		responseDump, err := httputil.DumpResponse(res, true)
 		if err != nil {
-			panic(err)
+			log.Println(err)
 		}
-		panic(string(responseDump))
+		return nil, errors.New(string(responseDump))
 	}
 
 	var result T
@@ -111,11 +115,11 @@ func makeRequest[T any](url string, method string, body interface{}, options Opt
 			log.Fatal(err)
 		}
 		strResult := string(resText)
-		return any(&strResult).(*T)
+		return any(&strResult).(*T), nil
 	}
 
 	if reflect.TypeOf((*T)(nil)).Elem().Kind() == reflect.Interface {
-		return nil
+		return nil, nil
 	}
 
 	responseJson := new(T)
@@ -131,29 +135,29 @@ func makeRequest[T any](url string, method string, body interface{}, options Opt
 
 	defer res.Body.Close()
 
-	return responseJson
+	return responseJson, nil
 }
 
-func Get[T any](url string, body interface{}, options Options) *T {
+func Get[T any](url string, body interface{}, options Options) (*T, error) {
 	return makeRequest[T](url, http.MethodGet, body, options)
 }
 
-func Post[T any](url string, body interface{}, options Options) *T {
+func Post[T any](url string, body interface{}, options Options) (*T, error) {
 	return makeRequest[T](url, http.MethodPost, body, options)
 }
 
-func Put[T any](url string, body interface{}, options Options) *T {
+func Put[T any](url string, body interface{}, options Options) (*T, error) {
 	return makeRequest[T](url, http.MethodPut, body, options)
 }
 
-func Patch[T any](url string, body interface{}, options Options) *T {
+func Patch[T any](url string, body interface{}, options Options) (*T, error) {
 	return makeRequest[T](url, http.MethodPatch, body, options)
 }
 
-func Delete[T any](url string, body interface{}, options Options) *T {
+func Delete[T any](url string, body interface{}, options Options) (*T, error) {
 	return makeRequest[T](url, http.MethodDelete, body, options)
 }
 
-func Option[T any](url string, body interface{}, options Options) *T {
+func Option[T any](url string, body interface{}, options Options) (*T, error) {
 	return makeRequest[T](url, http.MethodOptions, body, options)
 }
