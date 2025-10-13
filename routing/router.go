@@ -1,6 +1,9 @@
 package routing
 
-import "net/http"
+import( 
+	"net/http"
+	md "github.com/DraouiBilal/Runiverse-backend-lib/routing/middlewares"
+)
 
 type handler struct {
     handler func(w http.ResponseWriter, r *http.Request)
@@ -16,7 +19,7 @@ type Route struct {
     Handler http.Handler
 }
 
-func createRoute(method string, path string, handleFunc func(http.ResponseWriter, *http.Request), middlewares []Middleware) *Route {
+func createRoute(method string, path string, handleFunc func(http.ResponseWriter, *http.Request), middlewares []md.Middleware) *Route {
     var handler http.Handler = handler{
         handler: handleFunc,
     }
@@ -40,27 +43,35 @@ type Router struct {
     Routes []*Route
 }
 
-func (r *Router) Get(path string, handler func(http.ResponseWriter, *http.Request), middlewares []Middleware) {
+type HTTPRouter interface {
+	Get(path string, handler func(http.ResponseWriter, *http.Request), middlewares []md.Middleware)
+	Post(path string, handler func(http.ResponseWriter, *http.Request), middlewares []md.Middleware)
+	Put(path string, handler func(http.ResponseWriter, *http.Request), middlewares []md.Middleware)
+	Patch(path string, handler func(http.ResponseWriter, *http.Request), middlewares []md.Middleware)
+	Delete(path string, handler func(http.ResponseWriter, *http.Request), middlewares []md.Middleware)
+}
+
+func (r *Router) Get(path string, handler func(http.ResponseWriter, *http.Request), middlewares []md.Middleware) {
     route := createRoute("GET", path, handler, middlewares)
     r.Routes = append(r.Routes, route)
 }
 
-func (r *Router) Post(path string, handler func(http.ResponseWriter, *http.Request), middlewares []Middleware) {
+func (r *Router) Post(path string, handler func(http.ResponseWriter, *http.Request), middlewares []md.Middleware) {
     route := createRoute("POST", path, handler, middlewares)
     r.Routes = append(r.Routes, route)
 }
 
-func (r *Router) Put(path string, handler func(http.ResponseWriter, *http.Request), middlewares []Middleware) {
+func (r *Router) Put(path string, handler func(http.ResponseWriter, *http.Request), middlewares []md.Middleware) {
     route := createRoute("PUT", path, handler, middlewares)
     r.Routes = append(r.Routes, route)
 }
 
-func (r *Router) Patch(path string, handler func(http.ResponseWriter, *http.Request), middlewares []Middleware) {
+func (r *Router) Patch(path string, handler func(http.ResponseWriter, *http.Request), middlewares []md.Middleware) {
     route := createRoute("PUT", path, handler, middlewares)
     r.Routes = append(r.Routes, route)
 }
 
-func (r *Router) Delete(path string, handler func(http.ResponseWriter, *http.Request), middlewares []Middleware) {
+func (r *Router) Delete(path string, handler func(http.ResponseWriter, *http.Request), middlewares []md.Middleware) {
     route := createRoute("DELETE", path, handler, middlewares)
     r.Routes = append(r.Routes, route)
 }
