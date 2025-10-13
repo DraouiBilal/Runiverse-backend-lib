@@ -3,7 +3,10 @@ package routing
 import (
 	"net/http"
 	"strconv"
+	md "github.com/DraouiBilal/Runiverse-backend-lib/routing/middlewares"
 )
+
+
 
 type Server struct {
     http.Server
@@ -12,17 +15,20 @@ type Server struct {
     Routers []*Router
 }
 
-type Middleware func(http.Handler) http.Handler
 
 type Options struct {
     Host string
     Port int
     Protocol string
-    Middlewares []Middleware
+    Middlewares []md.Middleware
 }
 
+type HTTPServer interface {
+	InitServer(options *Options)
+	AddRouter(router *Router)
+}
 
-func (server *Server) createHandler(middlewares []Middleware ) (http.Handler) {
+func (server *Server) createHandler(middlewares []md.Middleware ) (http.Handler) {
     mux := http.NewServeMux()
 
     for _, router := range server.Routers {

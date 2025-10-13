@@ -1,4 +1,4 @@
-package routing
+package middlewares
 
 import (
 	"log"
@@ -6,9 +6,7 @@ import (
 	"time"
 )
 
-type middlewares struct {
-	Logging Middleware
-}
+type Middleware func(http.Handler) http.Handler
 
 func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -18,6 +16,4 @@ func loggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-var Middlewares *middlewares = &middlewares{
-	Logging: loggingMiddleware,
-}
+var Middlewares []Middleware = []Middleware{loggingMiddleware}
