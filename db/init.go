@@ -7,7 +7,7 @@ import (
 
 
 func CreateTable(conn *sql.DB, name string,columns map[string][]string) (sql.Result, error) {
-	query := fmt.Sprintf("CREATE TABLE %s (", name)
+	query := fmt.Sprintf("CREATE TABLE IF NOT EXIST %s (", name)
 
 	for k,v := range columns {
 		query += k
